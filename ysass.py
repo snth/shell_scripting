@@ -1,5 +1,6 @@
 import click
 from pathlib import Path
+from collections import defaultdict, Counter
 
 @click.group(chain=True, context_settings=dict(obj={}))
 def cli():
@@ -32,6 +33,20 @@ def show(ctx):
     if 'digests' in ctx.obj:
         for digest, path in ctx.obj['digests']:
             click.echo("{} {}".format(digest, path))
+
+@cli.command()
+@click.pass_context
+def duplicates(ctx):
+    if 'digests' in ctx.obj:
+        coll = defaultdict(set)
+        for digest, path in ctx.obj['digests']:
+            coll[digest].add(path)
+        duplicates = []
+        for digest, paths in coll.items():
+            if len(paths)>1:
+                for path in paths:
+                    duplicates.append( (digest, path) )
+        ctx.obj['digests'] = duplicates
 
 if __name__=='__main__':
     cli()
