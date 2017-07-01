@@ -1,7 +1,7 @@
 import click
 from pathlib import Path
 
-@click.group(chain=True)
+@click.group(chain=True, context_settings=dict(obj={}))
 def cli():
     pass
 
@@ -34,4 +34,4 @@ def show(ctx):
             click.echo("{} {}".format(digest, path))
 
 if __name__=='__main__':
-    cli(obj={})
+    cli()
