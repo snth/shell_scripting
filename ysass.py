@@ -15,23 +15,22 @@ def digests(ctx, hash_type, path):
     """Generate the digests for all files in a path"""
     from hashlib import md5, sha1
     hashfunc = locals()[hash_type]
-    hashobj = hashfunc()
-    p = Path(path)  # FIXME
-    d = {}
+    p = Path(path)
+    digests = []
     for q in p.iterdir():
         if q.is_file():
+            hashobj = hashfunc()
             with q.open('rb') as f:
                 for chunk in iter(lambda: f.read(4096), b''):
                     hashobj.update(chunk)
-            # click.echo("{} {}".format(hashobj.hexdigest(), q))
-            d[hashobj.hexdigest()] = q
-    ctx.obj['digests'] = d
+            digests.append( (hashobj.hexdigest(), q) )
+    ctx.obj['digests'] = digests
 
 @cli.command()
 @click.pass_context
-def print(ctx):
+def show(ctx):
     if 'digests' in ctx.obj:
-        for digest, path in ctx.obj['digests'].items():
+        for digest, path in ctx.obj['digests']:
             click.echo("{} {}".format(digest, path))
 
 if __name__=='__main__':
